@@ -95,9 +95,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-family: 'Georgia', serif;
-            position: absolute;
             transition: none;
             user-select: none;
+        }
+
+        .no-btn.fleeing {
+            position: fixed;
         }
 
         .celebration {
@@ -183,79 +186,52 @@
         }
 
         const magnetDistance = 200;
+        let isFleeing = false;
 
-        // Position the No button initially next to the Yes button
-        function initNoBtn() {
-            const yesRect = yesBtn.getBoundingClientRect();
-            const noRect = noBtn.getBoundingClientRect();
-            noBtn.style.left = (yesRect.right + 40) + 'px';
-            noBtn.style.top = (yesRect.top + yesRect.height / 2 - noRect.height / 2) + 'px';
-        }
-
-        // Wait for layout to settle then position
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                initNoBtn();
-            });
-        });
-
-        // Magnet effect — repel the No button away from the cursor
-        document.addEventListener('mousemove', function(e) {
+        function handleCursor(cursorX, cursorY) {
             const rect = noBtn.getBoundingClientRect();
             const btnCenterX = rect.left + rect.width / 2;
             const btnCenterY = rect.top + rect.height / 2;
-
-            const dx = btnCenterX - e.clientX;
-            const dy = btnCenterY - e.clientY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < magnetDistance) {
-                repelNoBtn(e.clientX, e.clientY);
-            }
-        });
-
-        // Also handle touch for mobile
-        document.addEventListener('touchmove', function(e) {
-            const touch = e.touches[0];
-            const rect = noBtn.getBoundingClientRect();
-            const btnCenterX = rect.left + rect.width / 2;
-            const btnCenterY = rect.top + rect.height / 2;
-            const dx = btnCenterX - touch.clientX;
-            const dy = btnCenterY - touch.clientY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < magnetDistance) {
-                repelNoBtn(touch.clientX, touch.clientY);
-            }
-        }, { passive: true });
-
-        function repelNoBtn(cursorX, cursorY) {
-            const rect = noBtn.getBoundingClientRect();
-            const btnCenterX = rect.left + rect.width / 2;
-            const btnCenterY = rect.top + rect.height / 2;
-
             const dx = btnCenterX - cursorX;
             const dy = btnCenterY - cursorY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            const angle = Math.atan2(dy, dx);
-            const force = (magnetDistance - distance) / magnetDistance;
-            const moveX = Math.cos(angle) * force * 180;
-            const moveY = Math.sin(angle) * force * 180;
+            if (distance < magnetDistance) {
+                // First time fleeing — switch to fixed position
+                if (!isFleeing) {
+                    isFleeing = true;
+                    noBtn.style.left = rect.left + 'px';
+                    noBtn.style.top = rect.top + 'px';
+                    noBtn.classList.add('fleeing');
+                }
 
-            let newX = rect.left + moveX;
-            let newY = rect.top + moveY;
+                const angle = Math.atan2(dy, dx);
+                const force = (magnetDistance - distance) / magnetDistance;
+                const moveX = Math.cos(angle) * force * 180;
+                const moveY = Math.sin(angle) * force * 180;
 
-            // Strictly keep within viewport
-            const padding = 20;
-            const maxX = window.innerWidth - rect.width - padding;
-            const maxY = window.innerHeight - rect.height - padding;
-            newX = Math.max(padding, Math.min(newX, maxX));
-            newY = Math.max(padding, Math.min(newY, maxY));
+                let newX = rect.left + moveX;
+                let newY = rect.top + moveY;
 
-            noBtn.style.left = newX + 'px';
-            noBtn.style.top = newY + 'px';
+                // Keep within viewport
+                const padding = 20;
+                const maxX = window.innerWidth - rect.width - padding;
+                const maxY = window.innerHeight - rect.height - padding;
+                newX = Math.max(padding, Math.min(newX, maxX));
+                newY = Math.max(padding, Math.min(newY, maxY));
+
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+            }
         }
+
+        document.addEventListener('mousemove', function(e) {
+            handleCursor(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            handleCursor(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
 
         // Yes button — celebration!
         yesBtn.addEventListener('click', function() {
@@ -263,12 +239,32 @@
             celebration.style.display = 'block';
             noBtn.style.display = 'none';
 
-            // Play Thank God by Kane Brown
-            const player = document.createElement('iframe');
-            player.src = 'https://www.youtube.com/embed/ao81ZRbepFX?autoplay=1&loop=1&playlist=ao81ZRbepFX';
-            player.allow = 'autoplay';
-            player.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;';
-            document.body.appendChild(player);
+            // Play Thank God by Kane Brown using YouTube IFrame API
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            document.head.appendChild(tag);
+
+            window.onYouTubeIframeAPIReady = function() {
+                const playerDiv = document.createElement('div');
+                playerDiv.id = 'yt-player';
+                playerDiv.style.cssText = 'position:fixed;bottom:-300px;width:1px;height:1px;';
+                document.body.appendChild(playerDiv);
+
+                new YT.Player('yt-player', {
+                    videoId: 'ao81ZRbepFX',
+                    events: {
+                        onReady: function(event) {
+                            event.target.setVolume(80);
+                            event.target.playVideo();
+                        },
+                        onStateChange: function(event) {
+                            if (event.data === YT.PlayerState.ENDED) {
+                                event.target.playVideo();
+                            }
+                        }
+                    }
+                });
+            };
 
             // Shower hearts
             for (let i = 0; i < 50; i++) {
