@@ -117,6 +117,17 @@
             font-size: 1.5rem;
         }
 
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
         .hearts {
             position: fixed;
             top: 0;
@@ -239,32 +250,17 @@
             celebration.style.display = 'block';
             noBtn.style.display = 'none';
 
-            // Play Thank God by Kane Brown using YouTube IFrame API
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(tag);
-
-            window.onYouTubeIframeAPIReady = function() {
-                const playerDiv = document.createElement('div');
-                playerDiv.id = 'yt-player';
-                playerDiv.style.cssText = 'position:fixed;bottom:-300px;width:1px;height:1px;';
-                document.body.appendChild(playerDiv);
-
-                new YT.Player('yt-player', {
-                    videoId: 'ao81ZRbepFX',
-                    events: {
-                        onReady: function(event) {
-                            event.target.setVolume(80);
-                            event.target.playVideo();
-                        },
-                        onStateChange: function(event) {
-                            if (event.data === YT.PlayerState.ENDED) {
-                                event.target.playVideo();
-                            }
-                        }
-                    }
-                });
-            };
+            // Play Thank God by Kane Brown
+            const wrapper = document.createElement('div');
+            wrapper.className = 'music-player';
+            const iframe = document.createElement('iframe');
+            iframe.width = '300';
+            iframe.height = '80';
+            iframe.src = 'https://www.youtube.com/embed/ao81ZRbepFX?autoplay=1&loop=1&playlist=ao81ZRbepFX';
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.style.border = 'none';
+            wrapper.appendChild(iframe);
+            document.body.appendChild(wrapper);
 
             // Shower hearts
             for (let i = 0; i < 50; i++) {
