@@ -20,6 +20,35 @@
             font-family: 'Georgia', serif;
             color: white;
             overflow: hidden;
+            position: relative;
+        }
+
+        .roses {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .rose {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.3;
+            animation: floatRose 6s ease-in-out infinite;
+        }
+
+        @keyframes floatRose {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+
+        .container, .celebration {
+            position: relative;
+            z-index: 1;
         }
 
         .container {
@@ -114,6 +143,8 @@
     </style>
 </head>
 <body>
+    <div class="roses" id="roses"></div>
+
     <div class="container" id="question">
         <h1>Ruthanna, will you be my Valentine?</h1>
         <div class="buttons">
@@ -135,6 +166,21 @@
         const question = document.getElementById('question');
         const celebration = document.getElementById('celebration');
         const heartsContainer = document.getElementById('hearts');
+
+        // Scatter roses across the background
+        const rosesContainer = document.getElementById('roses');
+        const roseEmojis = ['🌹', '🥀', '🌹', '🌷', '🌹'];
+        for (let i = 0; i < 20; i++) {
+            const rose = document.createElement('div');
+            rose.className = 'rose';
+            rose.textContent = roseEmojis[Math.floor(Math.random() * roseEmojis.length)];
+            rose.style.left = Math.random() * 95 + '%';
+            rose.style.top = Math.random() * 95 + '%';
+            rose.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
+            rose.style.animationDelay = (Math.random() * 6) + 's';
+            rose.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            rosesContainer.appendChild(rose);
+        }
 
         const magnetDistance = 200;
 
