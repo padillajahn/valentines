@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will you be my Valentine?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #FFB6C1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 60px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+        }
+
+        .yes-btn {
+            padding: 40px 80px;
+            font-size: 3rem;
+            background: white;
+            color: #FFB6C1;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .yes-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .no-btn {
+            padding: 14px 28px;
+            font-size: 1.4rem;
+            background: white;
+            color: #FFB6C1;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            position: absolute;
+            transition: none;
+            user-select: none;
+        }
+
+        .celebration {
+            display: none;
+            text-align: center;
+        }
+
+        .celebration h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .celebration p {
+            font-size: 1.5rem;
+        }
+
+        .hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 2rem;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="question">
+        <h1>Will you be my Valentine?</h1>
+        <div class="buttons">
+            <button class="yes-btn" id="yesBtn">Yes</button>
+            <button class="no-btn" id="noBtn">No</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+        <h1>Yay!!!</h1>
+        <p>I knew you'd say yes!</p>
+    </div>
+
+    <div class="hearts" id="hearts"></div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        const celebration = document.getElementById('celebration');
+        const heartsContainer = document.getElementById('hearts');
+
+        const magnetDistance = 200;
+
+        // Position the No button initially near the Yes button
+        function initNoBtn() {
+            const yesRect = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (yesRect.right + 60) + 'px';
+            noBtn.style.top = (yesRect.top + yesRect.height / 2 - noBtn.offsetHeight / 2) + 'px';
+        }
+
+        initNoBtn();
+
+        // Magnet effect — repel the No button away from the cursor
+        document.addEventListener('mousemove', function(e) {
+            const rect = noBtn.getBoundingClientRect();
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
+
+            const dx = btnCenterX - e.clientX;
+            const dy = btnCenterY - e.clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < magnetDistance) {
+                // Calculate escape direction (away from cursor)
+                const angle = Math.atan2(dy, dx);
+                const force = (magnetDistance - distance) / magnetDistance;
+                const moveX = Math.cos(angle) * force * 180;
+                const moveY = Math.sin(angle) * force * 180;
+
+                let newX = rect.left + moveX;
+                let newY = rect.top + moveY;
+
+                // Keep within viewport bounds
+                const maxX = window.innerWidth - rect.width - 10;
+                const maxY = window.innerHeight - rect.height - 10;
+                newX = Math.max(10, Math.min(newX, maxX));
+                newY = Math.max(10, Math.min(newY, maxY));
+
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+            }
+        });
+
+        // Also handle touch for mobile
+        document.addEventListener('touchmove', function(e) {
+            const touch = e.touches[0];
+            const rect = noBtn.getBoundingClientRect();
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
+
+            const dx = btnCenterX - touch.clientX;
+            const dy = btnCenterY - touch.clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < magnetDistance) {
+                const angle = Math.atan2(dy, dx);
+                const force = (magnetDistance - distance) / magnetDistance;
+                const moveX = Math.cos(angle) * force * 180;
+                const moveY = Math.sin(angle) * force * 180;
+
+                let newX = rect.left + moveX;
+                let newY = rect.top + moveY;
+
+                const maxX = window.innerWidth - rect.width - 10;
+                const maxY = window.innerHeight - rect.height - 10;
+                newX = Math.max(10, Math.min(newX, maxX));
+                newY = Math.max(10, Math.min(newY, maxY));
+
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+            }
+        }, { passive: true });
+
+        // Yes button — celebration!
+        yesBtn.addEventListener('click', function() {
+            question.style.display = 'none';
+            celebration.style.display = 'block';
+            noBtn.style.display = 'none';
+
+            // Shower hearts
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => spawnHeart(), i * 100);
+            }
+        });
+
+        function spawnHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = ['❤️', '💕', '💖', '💗', '💘'][Math.floor(Math.random() * 5)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+            heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            heartsContainer.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

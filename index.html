@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #FFB6C1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+        }
+
+        .lock-container {
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .passcode-input {
+            padding: 15px 25px;
+            font-size: 1.5rem;
+            border: 3px solid white;
+            border-radius: 12px;
+            background: transparent;
+            color: white;
+            text-align: center;
+            letter-spacing: 8px;
+            outline: none;
+            width: 280px;
+        }
+
+        .passcode-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 4px;
+        }
+
+        .unlock-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 12px 50px;
+            font-size: 1.2rem;
+            background: white;
+            color: #FFB6C1;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .unlock-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .error-msg {
+            color: white;
+            margin-top: 15px;
+            font-size: 1rem;
+            min-height: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-container">
+        <h1>Code needed to unlock</h1>
+        <input type="password" class="passcode-input" id="passcode" placeholder="------" maxlength="6">
+        <button class="unlock-btn" id="unlockBtn">Unlock</button>
+        <p class="error-msg" id="errorMsg"></p>
+    </div>
+
+    <script>
+        const passcode = document.getElementById('passcode');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const errorMsg = document.getElementById('errorMsg');
+
+        function tryUnlock() {
+            if (passcode.value === '121220') {
+                window.location.href = 'unlocked.html';
+            } else {
+                errorMsg.textContent = 'Wrong code, try again!';
+                passcode.value = '';
+                passcode.focus();
+            }
+        }
+
+        unlockBtn.addEventListener('click', tryUnlock);
+        passcode.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') tryUnlock();
+        });
+    </script>
+</body>
+</html>
