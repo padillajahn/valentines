@@ -263,6 +263,13 @@
             celebration.style.display = 'block';
             noBtn.style.display = 'none';
 
+            // Play Thank God by Kane Brown
+            const player = document.createElement('iframe');
+            player.src = 'https://www.youtube.com/embed/ao81ZRbepFX?autoplay=1&loop=1&playlist=ao81ZRbepFX';
+            player.allow = 'autoplay';
+            player.style.cssText = 'position:fixed;bottom:20px;right:20px;width:320px;height:180px;border:none;border-radius:12px;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+            document.body.appendChild(player);
+
             // Shower hearts
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => spawnHeart(), i * 100);
