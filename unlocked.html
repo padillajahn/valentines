@@ -244,6 +244,17 @@
             handleCursor(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
 
+        // No button — shrink and ask "are you sure?"
+        let noClickCount = 0;
+        let currentNoSize = 1.4;
+        noBtn.addEventListener('click', function() {
+            noClickCount++;
+            currentNoSize = Math.max(0.3, currentNoSize * 0.7);
+            noBtn.style.fontSize = currentNoSize + 'rem';
+            noBtn.style.padding = Math.max(2, 14 * Math.pow(0.7, noClickCount)) + 'px ' + Math.max(4, 28 * Math.pow(0.7, noClickCount)) + 'px';
+            noBtn.textContent = 'Are you sure?';
+        });
+
         // Yes button — celebration!
         yesBtn.addEventListener('click', function() {
             question.style.display = 'none';
