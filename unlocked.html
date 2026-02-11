@@ -184,14 +184,20 @@
 
         const magnetDistance = 200;
 
-        // Position the No button initially near the Yes button
+        // Position the No button initially next to the Yes button
         function initNoBtn() {
             const yesRect = yesBtn.getBoundingClientRect();
-            noBtn.style.left = (yesRect.right + 60) + 'px';
-            noBtn.style.top = (yesRect.top + yesRect.height / 2 - noBtn.offsetHeight / 2) + 'px';
+            const noRect = noBtn.getBoundingClientRect();
+            noBtn.style.left = (yesRect.right + 40) + 'px';
+            noBtn.style.top = (yesRect.top + yesRect.height / 2 - noRect.height / 2) + 'px';
         }
 
-        initNoBtn();
+        // Wait for layout to settle then position
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                initNoBtn();
+            });
+        });
 
         // Magnet effect — repel the No button away from the cursor
         document.addEventListener('mousemove', function(e) {
@@ -204,23 +210,7 @@
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < magnetDistance) {
-                // Calculate escape direction (away from cursor)
-                const angle = Math.atan2(dy, dx);
-                const force = (magnetDistance - distance) / magnetDistance;
-                const moveX = Math.cos(angle) * force * 180;
-                const moveY = Math.sin(angle) * force * 180;
-
-                let newX = rect.left + moveX;
-                let newY = rect.top + moveY;
-
-                // Keep within viewport bounds
-                const maxX = window.innerWidth - rect.width - 10;
-                const maxY = window.innerHeight - rect.height - 10;
-                newX = Math.max(10, Math.min(newX, maxX));
-                newY = Math.max(10, Math.min(newY, maxY));
-
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
+                repelNoBtn(e.clientX, e.clientY);
             }
         });
 
@@ -230,29 +220,42 @@
             const rect = noBtn.getBoundingClientRect();
             const btnCenterX = rect.left + rect.width / 2;
             const btnCenterY = rect.top + rect.height / 2;
-
             const dx = btnCenterX - touch.clientX;
             const dy = btnCenterY - touch.clientY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < magnetDistance) {
-                const angle = Math.atan2(dy, dx);
-                const force = (magnetDistance - distance) / magnetDistance;
-                const moveX = Math.cos(angle) * force * 180;
-                const moveY = Math.sin(angle) * force * 180;
-
-                let newX = rect.left + moveX;
-                let newY = rect.top + moveY;
-
-                const maxX = window.innerWidth - rect.width - 10;
-                const maxY = window.innerHeight - rect.height - 10;
-                newX = Math.max(10, Math.min(newX, maxX));
-                newY = Math.max(10, Math.min(newY, maxY));
-
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
+                repelNoBtn(touch.clientX, touch.clientY);
             }
         }, { passive: true });
+
+        function repelNoBtn(cursorX, cursorY) {
+            const rect = noBtn.getBoundingClientRect();
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
+
+            const dx = btnCenterX - cursorX;
+            const dy = btnCenterY - cursorY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const angle = Math.atan2(dy, dx);
+            const force = (magnetDistance - distance) / magnetDistance;
+            const moveX = Math.cos(angle) * force * 180;
+            const moveY = Math.sin(angle) * force * 180;
+
+            let newX = rect.left + moveX;
+            let newY = rect.top + moveY;
+
+            // Strictly keep within viewport
+            const padding = 20;
+            const maxX = window.innerWidth - rect.width - padding;
+            const maxY = window.innerHeight - rect.height - padding;
+            newX = Math.max(padding, Math.min(newX, maxX));
+            newY = Math.max(padding, Math.min(newY, maxY));
+
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        }
 
         // Yes button — celebration!
         yesBtn.addEventListener('click', function() {
